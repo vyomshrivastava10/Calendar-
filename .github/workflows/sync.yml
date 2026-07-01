@@ -24,7 +24,7 @@ jobs:
       env:
         BOCCONI_USER: ${{ secrets.BOCCONI_USER }}
         BOCCONI_PASS: ${{ secrets.BOCCONI_PASS }}
-      run: python update_calendar.py
+      run: python ./update_calendar.py
 
     - name: Commit and Push calendar changes
       run: |
