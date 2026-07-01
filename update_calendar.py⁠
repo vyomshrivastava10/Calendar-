@@ -1,31 +1,25 @@
 import os
 import requests
 
-# Get credentials securely from GitHub secrets
-USERNAME = os.environ.get("BOCCONI_USER")
-PASSWORD = os.environ.get("BOCCONI_PASS")
-CALENDAR_URL = "https://unibocconi.prod.up.cineca.it:443/api/FiltriICal/impegniICal?id=6a45283c84967600143a1dfa"
+# The calendar link with your unique token
+CALENDAR_URL = "https://unibocconi.prod.up.cineca.it:443/api/FiltriICal/impegniICal?id=6a452917c588470014923832"
 
-# 1. Start a session to handle cookies automatically
-session = requests.Session()
-
-# 2. Log in (Bocconi uses Cineca identity provider)
-login_url = "https://unibocconi.prod.up.cineca.it/api/login" 
-login_data = {
-    "username": USERNAME,
-    "password": PASSWORD
+# Pretend to be a standard web browser so the university server doesn't block the automated script
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-print("Attempting login...")
-response = session.post(login_url, json=login_data)
-
-# 3. Fetch the calendar using the authenticated session
 print("Fetching calendar data...")
-cal_response = session.get(CALENDAR_URL)
+response = requests.get(CALENDAR_URL, headers=headers)
 
-if cal_response.status_code == 200:
+if response.status_code == 200 and "BEGIN:VCALENDAR" in response.text:
     with open("calendar.ics", "w", encoding="utf-8") as f:
-        f.write(cal_response.text)
+        f.write(response.text)
     print("Calendar updated successfully!")
+elif response.status_code == 200:
+    print("Server responded, but it returned a login portal page instead of a calendar.")
+    print("Response snippet:", response.text[:200])
+    exit(1)
 else:
-    print(f"Failed to fetch calendar. Status code: {cal_response.status_code}")
+    print(f"Failed to fetch calendar. Status code: {response.status_code}")
+    exit(1)
