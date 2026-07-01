@@ -2,8 +2,8 @@ name: Update University Calendar
 
 on:
   schedule:
-    - cron: '0 4 * * *' # Runs automatically every day at 4:00 AM UTC
-  workflow_dispatch: # Allows you to run it manually whenever you want
+    - cron: '0 4 * * *' 
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -16,8 +16,6 @@ jobs:
 
     - name: Set up Python
       uses: actions/setup-python@v5
-      with:
-        python-version: '3.10' #fixed
 
     - name: Install dependencies
       run: pip install requests
@@ -35,3 +33,4 @@ jobs:
         git add calendar.ics
         git commit -m "Automated calendar update" || exit 0
         git push
+
