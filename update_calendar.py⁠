@@ -1,0 +1,31 @@
+import os
+import requests
+
+# Get credentials securely from GitHub secrets
+USERNAME = os.environ.get("BOCCONI_USER")
+PASSWORD = os.environ.get("BOCCONI_PASS")
+CALENDAR_URL = "https://unibocconi.prod.up.cineca.it:443/api/FiltriICal/impegniICal?id=6a45283c84967600143a1dfa"
+
+# 1. Start a session to handle cookies automatically
+session = requests.Session()
+
+# 2. Log in (Bocconi uses Cineca identity provider)
+login_url = "https://unibocconi.prod.up.cineca.it/api/login" 
+login_data = {
+    "username": USERNAME,
+    "password": PASSWORD
+}
+
+print("Attempting login...")
+response = session.post(login_url, json=login_data)
+
+# 3. Fetch the calendar using the authenticated session
+print("Fetching calendar data...")
+cal_response = session.get(CALENDAR_URL)
+
+if cal_response.status_code == 200:
+    with open("calendar.ics", "w", encoding="utf-8") as f:
+        f.write(cal_response.text)
+    print("Calendar updated successfully!")
+else:
+    print(f"Failed to fetch calendar. Status code: {cal_response.status_code}")
